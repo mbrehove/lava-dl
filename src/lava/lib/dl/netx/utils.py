@@ -14,6 +14,7 @@ class SYNAPSE_SIGN_MODE(IntEnum):
     """Enum for synapse sign mode. Options are {``MIXED : 1``,
     ``EXCITATORY : 2`` and ``INHIBITORY : 2``}.
     """
+
     MIXED = 1
     EXCITATORY = 2
     INHIBITORY = 3
@@ -37,18 +38,42 @@ class NetDict:
     def __init__(
         self,
         filename: Union[str, None] = None,
-        mode: str = 'r',
+        mode: str = "r",
         f: Union[h5py.File, h5py.Group] = None,
     ) -> None:
         self.f = h5py.File(filename, mode) if f is None else f
-        self.str_keys = ['type']
+        self.str_keys = ["type"]
         self.array_keys = [
-            'shape', 'stride', 'padding', 'dilation', 'groups', 'delay',
-            'iDecay', 'refDelay', 'scaleRho', 'tauRho', 'theta', 'vDecay',
-            'vThMant', 'wgtExp', 'sinDecay', 'cosDecay'
+            "shape",
+            "stride",
+            "padding",
+            "dilation",
+            "groups",
+            "delay",
+            "iDecay",
+            "refDelay",
+            "scaleRho",
+            "tauRho",
+            "theta",
+            "vDecay",
+            "vThMant",
+            "wgtExp",
+            "sinDecay",
+            "cosDecay",
+            "scale",
+            "scale_exp",
+            "bias_exp",
+            "num_message_bits",
+            "num_weight_bits",
+            "state_exp",
         ]
-        self.copy_keys = ['weight', 'weight_rec',
-                          'bias', 'weight/real', 'weight/imag']
+        self.copy_keys = [
+            "weight",
+            "weight_rec",
+            "bias",
+            "weight/real",
+            "weight/imag",
+        ]
 
     def keys(self) -> h5py._hl.base.KeysViewHDF5:
         return self.f.keys()
@@ -63,23 +88,23 @@ class NetDict:
                 value = value[0]
             else:
                 value = value[()]
-            return value.decode('ascii')
+            return value.decode("ascii")
         elif key in self.copy_keys:
             return self.f[key][()].astype(int).copy()
         elif key in self.array_keys:
             return self.f[key][()]
-        elif isinstance(key, int) and f'{key}' in self.f.keys():
-            return NetDict(f=self.f[f'{key}'])
+        elif isinstance(key, int) and f"{key}" in self.f.keys():
+            return NetDict(f=self.f[f"{key}"])
         else:
             return NetDict(f=self.f[key])
 
     def __setitem__(self, key: str) -> None:
-        raise NotImplementedError('Set feature is not implemented.')
+        raise NotImplementedError("Set feature is not implemented.")
 
 
-def optimize_weight_bits(weight: np.ndarray) -> Tuple[
-    np.ndarray, int, int, SYNAPSE_SIGN_MODE
-]:
+def optimize_weight_bits(
+    weight: np.ndarray,
+) -> Tuple[np.ndarray, int, int, SYNAPSE_SIGN_MODE]:
     """Optimizes the weight matrix to best fit in Loihi's synapse.
 
     Parameters
@@ -101,13 +126,13 @@ def optimize_weight_bits(weight: np.ndarray) -> Tuple[
     max_weight = np.max(weight)
     min_weight = np.min(weight)
     if max_weight > 254 and min_weight < 0:
-        print(f'[WARNING] weight matrix cannot be optimized to fit in synapse.')
-        print(f'         (max weight too large: {max_weight}, clipped to 254)')
+        print(f"[WARNING] weight matrix cannot be optimized to fit in synapse.")
+        print(f"         (max weight too large: {max_weight}, clipped to 254)")
         weight = np.clip(weight, -256, 254)
         max_weight = np.max(weight)
     if min_weight < -256 and max_weight > 0:
-        print(f'[WARNING] weight matrix cannot be optimized to fit in synapse.')
-        print(f'         (min weight too small: {min_weight}, clipped to -256)')
+        print(f"[WARNING] weight matrix cannot be optimized to fit in synapse.")
+        print(f"         (min weight too small: {min_weight}, clipped to -256)")
         weight = np.clip(weight, -256, 254)
         min_weight = np.min(weight)
 
@@ -154,7 +179,7 @@ def optimize_weight_bits(weight: np.ndarray) -> Tuple[
         weight.astype(int),
         int(num_weight_bits),
         int(weight_exponent),
-        sign_mode
+        sign_mode,
     )
 
 
@@ -173,12 +198,10 @@ def num_delay_bits(delays: np.ndarray) -> int:
     """
     if delays.min() < 0:
         raise ValueError(
-            f'Negative delay encountered. '
-            f'Found {delays.min()=}.'
+            f"Negative delay encountered. " f"Found {delays.min()=}."
         )
     if delays.max() >= 63:
         raise ValueError(
-            f'Max delay exceeded limit of 62. '
-            f'Found {delays.max()=}.'
+            f"Max delay exceeded limit of 62. " f"Found {delays.max()=}."
         )
     return np.ceil(np.log2(delays.max())).astype(int)
