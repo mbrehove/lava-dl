@@ -41,6 +41,8 @@ from utils import DataGenerator, YOLOPredictor, nms, YOLOMonitor, DeltaEncoder
 
 import logging
 
+logging.getLogger().setLevel(logging.INFO)
+
 logging.basicConfig(
     filename="yolo_kp_run.log",
     level=logging.INFO,
@@ -219,11 +221,12 @@ sender._log_config.level = logging.INFO
 # sender.run(
 #     condition=run_condition, run_cfg=run_config, compile_config=compile_config
 # )
+print("ready to compile.")
 sender.run(
     condition=run_condition,
     run_cfg=run_config,
 )
-
+print("compiled.")
 import threading
 import queue
 
@@ -233,7 +236,7 @@ def sender_thread(sender, send_frame_queue, num_steps):
     for i in range(num_steps):
         frame = send_frame_queue.get()
         sender.send(frame)  # This sends the input frame to the Lava network
-        logging.info(f"Frame {i} sent to pipeline.")
+        print(f"Frame {i} sent to pipeline.")
 
 
 def receiver_thread(receiver, recv_frame_queue, num_steps):
@@ -254,9 +257,9 @@ def receiver_thread(receiver, recv_frame_queue, num_steps):
                 obd.bbox.utils.tensor_from_annotation(gt_ann).cpu().data.numpy()
             )
             # yolo_monitor(input_frame, gt_bbox, pred_bbox)
-            logging.info(f"Frame {t} processed.")
+            print(f"Frame {t} processed.")
         else:
-            logging.info(f"Frame {t} queued in pipeline.")
+            print(f"Frame {t} queued in pipeline.")
 
 
 s_q = queue.Queue()
@@ -278,7 +281,7 @@ for t in range(num_steps):
 
 s_th.join()
 r_th.join()
-logging.info("Threads joined.")
+print("Threads joined.")
 sender.wait()
 sender.stop()
 
