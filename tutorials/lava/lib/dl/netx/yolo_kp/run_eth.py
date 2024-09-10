@@ -215,16 +215,15 @@ print(
 )
 sender._log_config.level = logging.INFO
 
-# cache_folder = os.path.join(os.path.dirname(__file__), "cache_folder")
-# os.makedirs(cache_folder, exist_ok=True)
-# compile_config = {"cache": True, "cache_dir": cache_folder}
-# sender.run(
-#     condition=run_condition, run_cfg=run_config, compile_config=compile_config
-# )
+cache_folder = os.path.join(os.path.dirname(__file__), "compile_cache")
+os.makedirs(cache_folder, exist_ok=True)
+compile_config = {"cache": False, "cache_dir": cache_folder}
+
 print("ready to compile.")
 sender.run(
     condition=run_condition,
     run_cfg=run_config,
+    compile_config=compile_config,
 )
 print("compiled.")
 import threading

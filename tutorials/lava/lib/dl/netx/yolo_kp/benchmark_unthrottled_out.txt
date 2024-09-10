@@ -1,0 +1,27 @@
+WARNING: Prophesee Dataset Toolbox could not be found!
+         Only Prophesee DVS demo will not run properly.
+         Please install it from https://github.com/prophesee-ai/prophesee-automotive-dataset-toolbox
+The model was trained for BDD100K dataset
+
+Network Architecture (yolo_kp):
+===============================
+|   Type   |  W  |  H  |  C  | ker | str | pad | dil | grp |delay|
+|Conv      |  224|  224|   16| 3, 3| 2, 2| 1, 1| 1, 1|    1|False|
+|Conv      |  112|  112|   32| 3, 3| 2, 2| 1, 1| 1, 1|    1|False|
+|Conv      |   56|   56|   64| 3, 3| 2, 2| 1, 1| 1, 1|    1|False|
+|Conv      |   28|   28|  128| 3, 3| 2, 2| 1, 1| 1, 1|    1|False|
+|Conv      |   28|   28|  256| 3, 3| 1, 1| 1, 1| 1, 1|    1|False|
+|Conv      |   14|   14|  256| 3, 3| 2, 2| 1, 1| 1, 1|    1|False|
+|Conv      |   14|   14|  512| 3, 3| 1, 1| 1, 1| 1, 1|    1|False|
+|Conv      |   14|   14|  256| 1, 1| 1, 1| 0, 0| 1, 1|    1|False|
+|Conv      |   14|   14|  512| 3, 3| 1, 1| 1, 1| 1, 1|    1|False|
+|Conv      |   14|   14|   48| 1, 1| 1, 1| 0, 0| 1, 1|    1|False|
+[1;30mINFO[0m:[34mDRV[0m:  SLURM is being run in background
+[1;30mINFO[0m:[34mHST[0m:  Initializing PAC193X registers to defaults.
+[1;30mINFO[0m:[34mHST[0m:  Getting voltage for 0
+[1;30mINFO[0m:[34mDRV[0m:  Connecting to ncl-gdc-vpx-01.zpn.intel.com:43269
+[1;30mINFO[0m:[34mHST[0m:  Getting voltage for 1
+[1;30mINFO[0m:[34mHST[0m:  Getting voltage for 2
+[1;30mERROR[0m:[34mDRV[0m:  [31mRPC request failed. Check proxies. Cancel any hung jobs RPC ErrorCode: StatusCode.UNAVAILABLE Details: DNS resolution failed for ncl-gdc-vpx-01.zpn.intel.com:43269: C-ares status is not ARES_SUCCESS qtype=A name=ncl-gdc-vpx-01.zpn.intel.com is_balancer=0: Domain name not found[0m
+[1;30mINFO[0m:[34mDRV[0m:      Host server up..............Done 1.71s
+[1;30mINFO[0m:[34mDRV[0m:  Executor: 100000 timesteps......Error 1.71s
