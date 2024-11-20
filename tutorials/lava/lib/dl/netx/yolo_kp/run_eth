@@ -1,0 +1,1 @@
+SLURM=1 PARTITION=vpx BOARD=ncl-ext-vpx-01 NUM_CHIPS_CONSTRAINT=-Q LOIHI_GEN=N3C1 NXOPTIONS=--pio-cfg-chip=0x4192 /usr/local/bin/cap_net_raw --ambient-caps +net_raw python3.10 run_eth.py

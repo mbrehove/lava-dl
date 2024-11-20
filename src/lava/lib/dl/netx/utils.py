@@ -42,7 +42,7 @@ class NetDict:
         f: Union[h5py.File, h5py.Group] = None,
     ) -> None:
         self.f = h5py.File(filename, mode) if f is None else f
-        self.str_keys = ["type"]
+        self.str_keys = ["type", "activation"]
         self.array_keys = [
             "shape",
             "stride",
@@ -75,6 +75,10 @@ class NetDict:
             "weight/real",
             "weight/imag",
         ]
+        self.net_dict_keys = [
+            "layer",
+            "neuron",
+        ]
 
     def keys(self) -> h5py._hl.base.KeysViewHDF5:
         return self.f.keys()
@@ -96,8 +100,12 @@ class NetDict:
             return self.f[key][()]
         elif isinstance(key, int) and f"{key}" in self.f.keys():
             return NetDict(f=self.f[f"{key}"])
-        else:
+        elif isinstance(key, str) and key.isdigit():
             return NetDict(f=self.f[key])
+        elif key in self.net_dict_keys:
+            return NetDict(f=self.f[key])
+        else:
+            raise KeyError(f"Key {key} not found or not supported.")
 
     def __setitem__(self, key: str) -> None:
         raise NotImplementedError("Set feature is not implemented.")
