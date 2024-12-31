@@ -237,13 +237,15 @@ class Network(AbstractProcess):
                 neuron_process = QANN
                 neuron_params = {
                     "neuron_proc": neuron_process,
-                    "threshold": neuron_config["threshold"],
                     "scale": neuron_config["scale"],
-                    "bias": neuron_config["bias"],
                     "bias_exp": neuron_config["bias_exp"],
                     "scale_exp": neuron_config["scale_exp"],
                     "num_message_bits": neuron_config["num_message_bits"],
                 }
+                if "threshold" in neuron_config.keys():
+                    neuron_params["threshold"] = neuron_config["threshold"]
+                if "bias" in neuron_config.keys():
+                    neuron_params["bias"] = neuron_config["bias"]
             return neuron_params
         elif "RF" in neuron_type:
             if num_message_bits is None:
