@@ -65,6 +65,8 @@ class Network(AbstractProcess):
     sparse_fc_layer : boolean, optional
         If True, all fully-connected layer synapses will be interpreted as
         Sparse types in Lava.
+    out_layer : int, optional
+        index of the output layer. Defaults to -1, the last layer. 
     """
 
     def __init__(
@@ -78,6 +80,7 @@ class Network(AbstractProcess):
         reset_offset: int = 0,
         spike_exp: int = 6,
         sparse_fc_layer: bool = False,
+        out_layer: int = -1,
     ) -> None:
         super().__init__(
             net_config=net_config,
@@ -100,7 +103,7 @@ class Network(AbstractProcess):
         self.layers = self._create()
 
         self.in_layer = self.layers[0]
-        self.out_layer = self.layers[-1]
+        self.out_layer = self.layers[out_layer]
 
         self.inp = InPort(shape=self.in_layer.inp.shape)
         self.out = OutPort(shape=self.out_layer.out.shape)
@@ -237,13 +240,15 @@ class Network(AbstractProcess):
                 neuron_process = QANN
                 neuron_params = {
                     "neuron_proc": neuron_process,
-                    "threshold": neuron_config["threshold"],
                     "scale": neuron_config["scale"],
-                    "bias": neuron_config["bias"],
                     "bias_exp": neuron_config["bias_exp"],
                     "scale_exp": neuron_config["scale_exp"],
                     "num_message_bits": neuron_config["num_message_bits"],
                 }
+                if "threshold" in neuron_config.keys():
+                    neuron_params["threshold"] = neuron_config["threshold"]
+                if "bias" in neuron_config.keys():
+                    neuron_params["bias"] = neuron_config["bias"]
             return neuron_params
         elif "RF" in neuron_type:
             if num_message_bits is None:

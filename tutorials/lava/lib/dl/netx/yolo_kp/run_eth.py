@@ -152,8 +152,19 @@ yolo_predictor = YOLOPredictor(
 # def output_visualizer(annotated_frame, map_score, frame_idx):
 #     display.push(frame=annotated_frame,
 #                  msg=f'Processed frame `{frame_idx}`\nObject detection mAP@0.5: `{map_score:.2f}`')
+output_list = []
 
-# yolo_monitor = YOLOMonitor(viz_fx=output_visualizer, class_list=test_set.classes)
+
+def output_visualizer(annotated_frame, map_score, frame_idx):
+    output_list.append(annotated_frame)
+    print(
+        f"Processed frame `{frame_idx}`\nObject detection mAP@0.5: `{map_score:.2f}`"
+    )
+
+
+yolo_monitor = YOLOMonitor(
+    viz_fx=output_visualizer, class_list=test_set.classes
+)
 
 
 frame_buffer = netx.modules.FIFO(depth=len(net))
@@ -255,8 +266,8 @@ def receiver_thread(receiver, recv_frame_queue, num_steps):
             gt_bbox = (
                 obd.bbox.utils.tensor_from_annotation(gt_ann).cpu().data.numpy()
             )
-            # yolo_monitor(input_frame, gt_bbox, pred_bbox)
-            print(f"Frame {t} processed.")
+            yolo_monitor(input_frame, gt_bbox, pred_bbox)
+            # print(f"Frame {t} processed.")
         else:
             print(f"Frame {t} queued in pipeline.")
 
@@ -283,5 +294,12 @@ r_th.join()
 print("Threads joined.")
 sender.wait()
 sender.stop()
+
+import pickle
+
+with open("run_eth_output.pkl", "wb") as f:
+    pickle.dump(output_list, f)
+
+print("Output saved to run_eth_output.pkl")
 
 # display.stop()
