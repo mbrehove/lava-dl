@@ -66,7 +66,7 @@ class Network(AbstractProcess):
         If True, all fully-connected layer synapses will be interpreted as
         Sparse types in Lava.
     out_layer : int, optional
-        index of the output layer. Defaults to -1, the last layer. 
+        index of the output layer. Defaults to -1, the last layer.
     """
 
     def __init__(
@@ -80,7 +80,6 @@ class Network(AbstractProcess):
         reset_offset: int = 0,
         spike_exp: int = 6,
         sparse_fc_layer: bool = False,
-        out_layer: int = -1,
     ) -> None:
         super().__init__(
             net_config=net_config,
@@ -103,7 +102,7 @@ class Network(AbstractProcess):
         self.layers = self._create()
 
         self.in_layer = self.layers[0]
-        self.out_layer = self.layers[out_layer]
+        self.out_layer = self.layers[-1]
 
         self.inp = InPort(shape=self.in_layer.inp.shape)
         self.out = OutPort(shape=self.out_layer.out.shape)
@@ -214,10 +213,11 @@ class Network(AbstractProcess):
             return neuron_params
         elif neuron_type in ["QANN"]:
             if reset_interval is not None:
-                warnings.warn(
-                    "Reset is not supported with Sigma Delta "
-                    "neurons. It will be ignored."
-                )
+                assert isinstance(reset_interval, int) and (
+                    reset_interval & (reset_interval - 1) == 0
+                ), "Reset interval must be an integer power of 2"
+            else:
+                reset_interval = 0
             if num_message_bits is None:
                 num_message_bits = 16  # default value
             if input is True:
@@ -244,11 +244,16 @@ class Network(AbstractProcess):
                     "bias_exp": neuron_config["bias_exp"],
                     "scale_exp": neuron_config["scale_exp"],
                     "num_message_bits": neuron_config["num_message_bits"],
+                    "interval_sub_1": (
+                        reset_interval - 1 if reset_interval > 0 else 0
+                    ),
+                    "activation": neuron_config["activation"] == "relu",
                 }
                 if "threshold" in neuron_config.keys():
                     neuron_params["threshold"] = neuron_config["threshold"]
                 if "bias" in neuron_config.keys():
                     neuron_params["bias"] = neuron_config["bias"]
+
             return neuron_params
         elif "RF" in neuron_type:
             if num_message_bits is None:
